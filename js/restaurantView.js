@@ -4,6 +4,7 @@ class RestaurantView {
     this.categories = document.getElementById("categories");
     this.dishes = document.getElementById("dishes");
     this.menu = document.querySelector(".navbar-nav");
+    this.productWindows = []; //si se deja null, no se pueden rastrear las ventanas que haya abiertas
   }
 
   bindInit(handler) {
@@ -346,6 +347,12 @@ class RestaurantView {
                   <div class="cart mt-4 align-items-center">${product.ingredients.join(
                     ", "
                   )}</div>
+                  <div class="cart mt-4 align-items-center">
+                    <button id="b-open" data-product="${
+                      product.name
+                      //t6 - botón para abrir ventana
+                    }" class="btn btn-primary">Ver más</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -362,6 +369,89 @@ class RestaurantView {
       );
     }
     this.main.append(container);
+  }
+
+  //TEMA6 - crear ventana externa
+  showProductInWindow(product, allergens, message, targetWindow) {
+    const main = targetWindow.document.querySelector("main");
+    main.replaceChildren();
+
+    let container = document.createElement("div");
+    container.classList.add("container", "mt-5", "mb-5");
+
+    if (product) {
+      container.id = "single-product";
+      container.classList.add(`${product.constructor.name}-style`);
+      container.insertAdjacentHTML(
+        "beforeend",
+        `<div class="row d-flex justify-content-center">
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="images p-3">
+                                    <div class="text-center p-4">
+                                        <img id="main-image" src="${
+                                          product.image
+                                        }" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="product p-4">
+                                    <div class="mt-4 mb-3">
+                                        <span class="text-uppercase brand">${
+                                          product.name
+                                        }</span>
+                                        <h5 class="text-uppercase">${
+                                          product.description
+                                        }</h5>
+                                    </div>
+                                    <div class="sizes mt-5">
+                                        <h6 class="text-uppercase">Ingredientes</h6>
+                                        <p>${product.ingredients.join(", ")}</p>
+                                    </div>
+                                    <div class="sizes mt-5">
+                                        <h6 class="text-uppercase">Alérgenos</h6>
+                                        <p>${allergens
+                                          .map((aller) => aller.name) //map transforma cada alergeno en su nombre individual, para mostrar
+                                          .join(", ")}</p>
+                                    </div>
+                                    <button class="btn btn-primary text-uppercase m-2 px-4" onClick="window.close()">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+      );
+    } else {
+      container.insertAdjacentHTML(
+        "beforeend",
+        `<div class="row d-flex justify-content-center">${message}</div>`
+      );
+    }
+    main.append(container);
+  }
+
+  bindShowProductInNewWindow(handler) {
+    const button = document.getElementById("b-open");
+    button.addEventListener("click", (event) => {
+      //abre una nueva ventana sin sobreescribir las anteriores
+      const newWindow = window.open(
+        "single-product.html",
+        "_blank", //usar _blank permite abrir varias ventanas al mismo tiempo
+        "width=800, height=600, top=250, left=250, titlebar=yes, toolbar=no, menubar=no, location=no"
+      );
+
+      // Añade la nueva ventana al arreglo
+      this.productWindows.push(newWindow);
+
+      // Asegura que el manejador se aplique correctamente
+      newWindow.addEventListener("DOMContentLoaded", () => {
+        handler(event.target.dataset.product, newWindow);
+      });
+    });
   }
 
   bindShowProduct(handler) {
@@ -420,6 +510,31 @@ class RestaurantView {
 
     //Añade el nuevo elemento al final de la lista
     breadcrumbList.appendChild(newItem);
+  }
+
+  //t6 - crear "Cerrar ventanas" en navbar
+  createCloseWindow() {
+    const li = document.createElement("li");
+    li.classList.add("nav-item");
+    li.classList.add("closeWindow");
+    li.insertAdjacentHTML(
+      "beforeend",
+      `<a class="nav-link cursor-pointer href="#" id="closeWindow">Cerrar Ventanas</a>`
+    );
+    this.menu.append(li);
+  }
+
+  //funcionalidad de cerrar ventana
+  closeWindows() {
+    const bClose = document.getElementById("closeWindow");
+    bClose.addEventListener("click", () => {
+      for (let i = 0; i < this.productWindows.length; i++) {
+        if (this.productWindows[i] && !this.productWindows[i].closed) {
+          this.productWindows[i].close();
+        }
+      }
+      this.productWindows = []; // Limpia el arreglo después de cerrar las ventanas
+    });
   }
 }
 

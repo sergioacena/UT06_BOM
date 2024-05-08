@@ -831,6 +831,15 @@ const RestaurantsManager = (function () {
         return dishesInMenu();
       }
 
+      //T6 - Adición de alérgenos a la info de un plato
+      getAllergensForDish(dish) {
+        const dishPosition = this.#getDishPosition(dish);
+        if (dishPosition === -1) {
+          throw new NotRegisteredElementException();
+        }
+        return this.#dishes[dishPosition].allergens;
+      }
+
       //Creación de objetos
       //Crear plato
       createDish(name, description, ingredients, image) {
@@ -845,19 +854,6 @@ const RestaurantsManager = (function () {
         const newDish = new Dish(name, description, ingredients, image);
         return newDish;
       }
-
-      // createMenu(name, description) {
-      //   for (const menu of this.#menus) {
-      //     if (menu.menu.name === name) {
-      //       //Devuelve el menú en el caso de ya existir
-      //       return menu.menu;
-      //     }
-      //   }
-
-      //   //Crea un menú nuevo en el caso de no existir previamente
-      //   const newMenu = new this.#productConstructors.Menu(name, description);
-      //   return newMenu;
-      // }
 
       createMenu(name, description = "") {
         if (!name || typeof name !== "string") {
@@ -876,21 +872,6 @@ const RestaurantsManager = (function () {
         return newMenu;
       }
 
-      // createAllergen(name, description) {
-      //   for (const allergen of this.#allergens) {
-      //     if (allergen.allergens.name === name) {
-      //       //Devuelve el alérgeno en el caso de ya existir
-      //       return allergen.allergens;
-      //     }
-      //   }
-
-      //   const newAllergen = new this.#productConstructors.Allergen(
-      //     name,
-      //     description
-      //   );
-      //   return newAllergen;
-      // }
-
       createAllergen(name, description = "") {
         if (!name || typeof name !== "string") {
           throw new Error("El nombre del alérgeno no es válido.");
@@ -908,21 +889,6 @@ const RestaurantsManager = (function () {
         return newAllergen;
       }
 
-      // createCategory(name, description) {
-      //   for (const category of this.#categories) {
-      //     if (category.categories.name === name) {
-      //       //Devuelve la categoría en el caso de ya existir
-      //       return category.categories;
-      //     }
-      //   }
-
-      //   const newCategory = new this.#productConstructors.Category(
-      //     name,
-      //     description
-      //   );
-      //   return newCategory;
-      // }
-
       createCategory(name, description) {
         if (!name || typeof name !== "string") {
           throw new Error("Invalid category name");
@@ -937,19 +903,6 @@ const RestaurantsManager = (function () {
         const newCategory = new Category(name, description);
         return newCategory;
       }
-
-      // createRestaurant(name, description, location) {
-      //   for (const restaurant of this.#restaurants) {
-      //     if (restaurant.restaurants.name === name) {
-      //       //Devuelve el restaurante en el caso de ya existir
-      //       return restaurant.restaurants;
-      //     }
-      //   }
-
-      //   //Crea un restaurante nuevo en el caso de no existir previamente
-      //   const newRestaurant = new Restaurant(name, description, location);
-      //   return newRestaurant;
-      // }
 
       createRestaurant(name, description = "", location = undefined) {
         if (!name || typeof name !== "string") {

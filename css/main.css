@@ -566,3 +566,54 @@ footer p {
     margin-top: 8px;
 }
 
+
+/* estilos t6 */
+
+
+/* estilos ventanas emergentes */
+.images img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-primary {
+    background-color: #ff6600;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #ff4500;
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+.product p, .product h5, .product span, .sizes h6 {
+    margin-bottom: 10px;
+}
+
+.product h5 {
+    font-size: 24px;
+    margin-top: 20px;
+    text-transform: uppercase;
+}
+
+.product p {
+    line-height: 1.5;
+    font-size: 16px;
+}
+
+/* cursor-pointer para "cerrar ventanas" */
+.cursor-pointer {
+    cursor: pointer;
+}
+

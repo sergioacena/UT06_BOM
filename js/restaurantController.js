@@ -220,6 +220,8 @@ class RestaurantController {
     this.onAddAllergen();
     this.onAddMenu();
     this.onAddRestaurant();
+    //t6 - cerrar ventanas desde navbar
+    this[VIEW].createCloseWindow();
   };
 
   onInit = () => {
@@ -255,12 +257,6 @@ class RestaurantController {
   //uso try-catch debido a infinidad de problemas que me han dado estos metodos
   handleProductsCategoryList = (categoryName) => {
     try {
-      // this[VIEW].updateBreadcrumbs(
-      //   `Categoría: ${categoryName}`,
-      //   `#category-${categoryName}`
-      // );
-      //Nos aseguramos que la categoría es válida
-      // console.log("Seleccionando platos para la categoría:", categoryName); //test
       const category = this[MODEL].createCategory(categoryName, "");
       const dishes = this[MODEL].getDishesInCategory(category);
 
@@ -281,7 +277,6 @@ class RestaurantController {
       );
 
       //Mostramos los platos en la vista
-      // console.log("Platos disponibles en la categoría:", dishesArray); //test
       this[VIEW].listProducts(dishesArray, categoryName);
       this[VIEW].bindShowProduct(this.handleShowProduct);
     } catch (error) {
@@ -289,15 +284,6 @@ class RestaurantController {
       this[VIEW].listProducts([], categoryName);
     }
   };
-
-  // handleProductsAllergenList = (name) => {
-  //   const allerg = this[MODEL].createAllergen(name, "");
-  //   this[VIEW].listProducts(
-  //     this[MODEL].getDishesWithAllergen(allerg),
-  //     allerg.name
-  //   );
-  //   this[VIEW].bindShowProduct(this.handleShowProduct);
-  // };
 
   handleProductsAllergenList = (allergenName) => {
     try {
@@ -320,12 +306,6 @@ class RestaurantController {
     }
   };
 
-  // handleProductsMenuList = (name) => {
-  //   const menu = this[MODEL].createMenu(name, "");
-  //   this[VIEW].listProducts(this[MODEL].getDishesInMenu(menu.name), menu.name);
-  //   this[VIEW].bindShowProduct(this.handleShowProduct);
-  // };
-
   handleProductsMenuList = (menuName) => {
     try {
       this[VIEW].updateBreadcrumbs(`Menú: ${menuName}`, `#menu-${menuName}`);
@@ -337,7 +317,6 @@ class RestaurantController {
       this[VIEW].listProducts(dishesArray, `Menú "${menuName}"`);
       this[VIEW].bindShowProduct(this.handleShowProduct);
     } catch (error) {
-      // console.error("Error obteniendo platos para el menú:", error);
       this[VIEW].listProducts([], `Platos del Menú ${menuName}`);
     }
   };
@@ -345,34 +324,43 @@ class RestaurantController {
   handleRestaurant = (name) => {
     this[VIEW].updateBreadcrumbs(`Restaurante: ${name}`, `#restaurant-${name}`);
 
-    // console.log("Obteniendo información del restaurante:", name);
     const rest = this[MODEL].createRestaurant(name, "", new Coordinate(1, 1));
     this[VIEW].showRestaurant(rest, rest.name);
   };
 
   handleShowProduct = (productName) => {
     try {
-      // console.log("Buscando el plato:", productName);
       const product = this[MODEL].createDish(productName, "", [], "");
 
-      //Se verifica si la información es válida
-      if (product && product.name === productName) {
-        // Actualiza los breadcrumbs usando el contexto actual
-        this[VIEW].updateBreadcrumbs(
-          this.currentContext.name,
-          this.currentContext.href
-        );
-        this[VIEW].updateBreadcrumbs(
-          `Plato: ${productName}`,
-          `#single-product`
-        );
-        this[VIEW].showProduct(product, "");
-      } else {
-        this[VIEW].showProduct(null, "No existe este producto en la página.");
-      }
+      //Actualiza los breadcrumbs usando el contexto actual
+      this[VIEW].updateBreadcrumbs(
+        this.currentContext.name,
+        this.currentContext.href
+      );
+      this[VIEW].updateBreadcrumbs(`Plato: ${productName}`, `#single-product`);
+      this[VIEW].showProduct(product, "");
+      //t6 - asociamos el evento del botón con showProductInNewWindow
+      this[VIEW].bindShowProductInNewWindow(this.handleShowProductInNewWindow);
+      //t6 - cerrar ventana
+      this[VIEW].closeWindows();
     } catch (error) {
-      // console.error("Error encontrando el producto:", error);
       this[VIEW].showProduct(null, "No existe este producto en la página.");
+    }
+  };
+
+  //t6 - manejador nueva ventana
+  handleShowProductInNewWindow = (productName, targetWindow) => {
+    try {
+      const product = this[MODEL].createDish(productName, "", [], "");
+      const allergens = [...this[MODEL].getAllergensForDish(product)];
+      this[VIEW].showProductInWindow(product, allergens, "", targetWindow);
+    } catch (error) {
+      this[VIEW].showProductInWindow(
+        null,
+        [],
+        "No existe este producto en la página.",
+        targetWindow
+      );
     }
   };
 }
