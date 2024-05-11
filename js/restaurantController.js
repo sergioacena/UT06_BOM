@@ -216,7 +216,7 @@ class RestaurantController {
   onLoad = () => {
     this[LOAD_RESTAURANT_OBJECTS]();
     this.onAddCategory();
-    this[VIEW].showRandomDishes(this[MODEL].getterDishes());
+    this[VIEW].showRandomProduct(this[MODEL].getterDishes());
     this.onAddAllergen();
     this.onAddMenu();
     this.onAddRestaurant();
@@ -225,9 +225,23 @@ class RestaurantController {
   };
 
   onInit = () => {
+    // const randomDishes = [...this[MODEL].getterDishes()];
+
+    // Muestra las categorías y los platos aleatorios
     this[VIEW].showCategories(this[MODEL].getterCategories());
+    this[VIEW].showRandomProduct(this[MODEL].getterDishes());
     this[VIEW].bindProductsCategoryList(this.handleProductsCategoryList);
     this[VIEW].bindShowRandomProduct(this.handleShowProduct);
+
+    // history.pushState(
+    //   {
+    //     action: "init",
+    //     categories: [...this[MODEL].getterCategories()],
+    //     randomDishes,
+    //   },
+    //   null,
+    //   "#"
+    // );
   };
 
   handleInit = () => {

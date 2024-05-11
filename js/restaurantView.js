@@ -1,3 +1,5 @@
+const EXCECUTE_HANDLER = Symbol("excecuteHandler");
+
 class RestaurantView {
   constructor() {
     this.main = document.getElementsByTagName("main")[0];
@@ -7,9 +9,33 @@ class RestaurantView {
     this.productWindows = []; //si se deja null, no se pueden rastrear las ventanas que haya abiertas
   }
 
+  //Manejador para el history
+  [EXCECUTE_HANDLER](
+    handler,
+    handlerArguments,
+    scrollElement,
+    data,
+    url,
+    event
+  ) {
+    handler(...handlerArguments);
+    const scroll = document.querySelector(scrollElement);
+    if (scroll) scroll.scrollIntoView();
+    history.pushState(data, null, url);
+    event.preventDefault();
+  }
+
+  //Se modifica el bindInit para que contenga el manejador superior
   bindInit(handler) {
     document.getElementById("init").addEventListener("click", (event) => {
-      handler();
+      this[EXCECUTE_HANDLER](
+        handler,
+        [],
+        "body",
+        { action: "init" },
+        "#",
+        event
+      );
     });
   }
 
@@ -131,7 +157,7 @@ class RestaurantView {
     this.menu.append(li);
   }
 
-  showRandomDishes(dishes) {
+  showRandomProduct(dishes) {
     //copiamos los datos del iterador en un nuevo array
     const allDishes = [...dishes];
     const randomDishes = [];
@@ -184,6 +210,7 @@ class RestaurantView {
 
   listProducts(products, title) {
     this.categories.replaceChildren();
+    this.main.replaceChildren();
     if (this.categories.children.length > 1)
       this.categories.children[1].remove();
     const container = document.createElement("div");
@@ -236,7 +263,16 @@ class RestaurantView {
     const links = categoryList.querySelectorAll("a");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.category);
+        const category = event.currentTarget.dataset.category;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [category],
+          "#product-list",
+          { action: "productsCategoryList", category },
+          "#category-list",
+          event
+        );
+        handler(category);
       });
     }
   }
@@ -246,7 +282,15 @@ class RestaurantView {
     const links = navCats.nextSibling.querySelectorAll("a");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.category);
+        const { category } = event.currentTarget.dataset;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [category],
+          "#product-list",
+          { action: "productsCategoryList", category },
+          "#category-list",
+          event
+        );
       });
     }
   }
@@ -256,7 +300,15 @@ class RestaurantView {
     const links = navAllerg.nextSibling.querySelectorAll("a");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.allergen);
+        const { allergen } = event.currentTarget.dataset;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [allergen],
+          "#product-list",
+          { action: "productsAllergenList", allergen },
+          "#category-list",
+          event
+        );
       });
     }
   }
@@ -266,7 +318,15 @@ class RestaurantView {
     const links = navMenu.nextSibling.querySelectorAll("a");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.menu);
+        const { menu } = event.currentTarget.dataset;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [menu],
+          "#product-list",
+          { action: "productsMenuList", menu },
+          "#category-list",
+          event
+        );
       });
     }
   }
@@ -276,9 +336,21 @@ class RestaurantView {
     if (navRest) {
       const links = navRest.nextSibling.querySelectorAll("a");
       for (const link of links) {
+        // link.addEventListener("click", (event) => {
+        //   event.preventDefault(); //Evita la navegación predeterminada
+        //   handler(event.currentTarget.dataset.restaurant);
+        // });
         link.addEventListener("click", (event) => {
           event.preventDefault(); //Evita la navegación predeterminada
-          handler(event.currentTarget.dataset.restaurant);
+          const { restaurant } = event.currentTarget.dataset;
+          this[EXCECUTE_HANDLER](
+            handler,
+            [restaurant],
+            "#restaurantes",
+            { action: "restaurantsList", restaurant },
+            "#restaurantes",
+            event
+          );
         });
       }
     } else {
@@ -459,29 +531,63 @@ class RestaurantView {
     const links = productList.querySelectorAll("a.img-wrap");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.dish);
+        const { dish } = event.currentTarget.dataset;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [dish],
+          "#single-product",
+          { action: "showProduct", dish },
+          "#single-product",
+          event
+        );
       });
     }
     const images = productList.querySelectorAll("figcaption a");
-    for (const link of links) {
+    for (const link of images) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.dish);
+        const { dish } = event.currentTarget.dataset;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [dish],
+          "#single-product",
+          { action: "showProduct", dish },
+          "#single-product",
+          event
+        );
       });
     }
   }
 
   bindShowRandomProduct(handler) {
     const productList = document.getElementById("random-list");
-    const links = productList.querySelectorAll("a.img-wrap");
+    const links = productList.querySelectorAll("a");
     for (const link of links) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.dish);
+        const dish = event.currentTarget.dataset.dish;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [dish],
+          "#single-product",
+          { action: "showRandomProduct", dish },
+          "#single-product",
+          event
+        );
+        handler(dish);
       });
     }
     const images = productList.querySelectorAll("figcaption a");
-    for (const link of links) {
+    for (const link of images) {
       link.addEventListener("click", (event) => {
-        handler(event.currentTarget.dataset.dish);
+        const dish = event.currentTarget.dataset.dish;
+        this[EXCECUTE_HANDLER](
+          handler,
+          [dish],
+          "#single-product",
+          { action: "showRandomProduct", dish },
+          "#single-product",
+          event
+        );
+        handler(dish);
       });
     }
   }
